@@ -1,0 +1,12 @@
+{
+	"name": "kintalisynapseworkspace_pooldc_service",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDW",
+		"typeProperties": {
+			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=kintalisynapseworkspace.sql.azuresynapse.net;initial catalog=pooldb;user id=sqladminuser",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDJGNkU3RkUwLTM5QzUtNDY5RS1CQkEzLTA2QUZDN0E1OTE3NV85M2EzNWE0OC05ODIzLTQyN2YtYTYwOS0wNDcxMjAzODE3ZDgiDQp9"
+		}
+	}
+}

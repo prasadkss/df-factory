@@ -1,0 +1,9 @@
+{
+	"name": "kintaliappfactory",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "37dbf5ae-731b-4e37-9b2e-27ab2d90949d",
+		"tenantId": "14dc42f7-4b73-4765-a20f-180732eac672"
+	}
+}

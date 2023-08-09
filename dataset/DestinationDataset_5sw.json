@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_5sw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "kintalisynapseworkspace_pooldc_service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Log"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
