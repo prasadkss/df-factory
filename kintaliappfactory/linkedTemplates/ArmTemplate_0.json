@@ -658,7 +658,7 @@
 							"value": "@dataset().filename",
 							"type": "Expression"
 						},
-						"folderPath": "Customer",
+						"folderPath": "DimCustomer",
 						"fileSystem": "csv"
 					},
 					"columnDelimiter": ",",
