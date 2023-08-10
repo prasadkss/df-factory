@@ -1072,6 +1072,52 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/13_Metadata')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetMetadataBlob",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "CustomerCSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/01_dataflow_FactSales')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -2125,60 +2171,6 @@
 				"[concat(variables('factoryId'), '/dataflows/04_dataflow_json')]",
 				"[concat(variables('factoryId'), '/datasets/logdatajson')]",
 				"[concat(variables('factoryId'), '/datasets/log_parquet_pooldb_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/08_JSON_Array')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DataflowJSONArray",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "05_JSON_Arrays",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"CustomerJSONStream": {},
-									"Customerpooldb": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "kintali_service1",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "staging"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-08-09T01:00:58Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/05_JSON_Arrays')]"
 			]
 		}
 	]
