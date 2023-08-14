@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "kintaliappfactory"
 		},
+		"AzureDataLakeStoragebkup_accountKey": {
+			"value": ""
+		},
 		"kintali_appdb_connectionString": {
 			"value": ""
 		},
@@ -13,6 +16,9 @@
 		},
 		"kintalisynapseworkspace_pooldc_service_connectionString": {
 			"value": ""
+		},
+		"AzureDataLakeStoragebkup_properties_typeProperties_url": {
+			"value": "https://kintalistoragebkup.dfs.core.windows.net/"
 		},
 		"kintali_service1_properties_typeProperties_url": {
 			"value": "https://kintalidatalakestorageg2.dfs.core.windows.net/"

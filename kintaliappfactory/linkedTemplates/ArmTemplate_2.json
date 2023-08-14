@@ -13,6 +13,591 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/01_dataflow_FactSales')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "SalesOrderDetail_Table",
+								"type": "DatasetReference"
+							},
+							"name": "SalesOrderDetailStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "SalesOrderHeader_Table",
+								"type": "DatasetReference"
+							},
+							"name": "SalesOrderHeaderStream"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalyticsTable1",
+								"type": "DatasetReference"
+							},
+							"name": "FactSalesStream"
+						}
+					],
+					"transformations": [
+						{
+							"name": "SalesOrderDetailJoinSalesOrderHeader"
+						},
+						{
+							"name": "selectNeededColumnsStream"
+						},
+						{
+							"name": "TotalAmountStream"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SalesOrderID as integer,",
+						"          SalesOrderDetailID as integer,",
+						"          OrderQty as integer,",
+						"          ProductID as integer,",
+						"          UnitPrice as decimal(19,4),",
+						"          UnitPriceDiscount as decimal(19,4),",
+						"          LineTotal as decimal(38,6),",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SalesOrderDetailStream",
+						"source(output(",
+						"          SalesOrderID as integer,",
+						"          RevisionNumber as integer,",
+						"          OrderDate as timestamp,",
+						"          DueDate as timestamp,",
+						"          ShipDate as timestamp,",
+						"          Status as integer,",
+						"          OnlineOrderFlag as boolean,",
+						"          SalesOrderNumber as string,",
+						"          PurchaseOrderNumber as string,",
+						"          AccountNumber as string,",
+						"          CustomerID as integer,",
+						"          ShipToAddressID as integer,",
+						"          BillToAddressID as integer,",
+						"          ShipMethod as string,",
+						"          CreditCardApprovalCode as string,",
+						"          SubTotal as decimal(19,4),",
+						"          TaxAmt as decimal(19,4),",
+						"          Freight as decimal(19,4),",
+						"          TotalDue as decimal(19,4),",
+						"          Comment as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> SalesOrderHeaderStream",
+						"SalesOrderDetailStream, SalesOrderHeaderStream join(SalesOrderDetailStream@SalesOrderID == SalesOrderHeaderStream@SalesOrderID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> SalesOrderDetailJoinSalesOrderHeader",
+						"SalesOrderDetailJoinSalesOrderHeader select(mapColumn(",
+						"          OrderQty,",
+						"          ProductID,",
+						"          UnitPrice,",
+						"          SalesOrderID = SalesOrderHeaderStream@SalesOrderID,",
+						"          OrderDate,",
+						"          CustomerID,",
+						"          TaxAmt",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectNeededColumnsStream",
+						"selectNeededColumnsStream derive(TotalAmount = multiply(UnitPrice,OrderQty)) ~> TotalAmountStream",
+						"TotalAmountStream sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ProductID as integer,",
+						"          SalesOrderID as integer,",
+						"          CustomerID as integer,",
+						"          OrderQty as integer,",
+						"          UnitPrice as decimal(19,4),",
+						"          OrderDate as timestamp,",
+						"          TaxAmt as decimal(19,4),",
+						"          TotalAmount as decimal(19,4)",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ProductID,",
+						"          SalesOrderID,",
+						"          CustomerID,",
+						"          OrderQty,",
+						"          UnitPrice,",
+						"          OrderDate,",
+						"          TaxAmt,",
+						"          TotalAmount",
+						"     )) ~> FactSalesStream"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02_dataflow_Dim')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "CustomerCSV",
+								"type": "DatasetReference"
+							},
+							"name": "CustomerStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "Product_Table",
+								"type": "DatasetReference"
+							},
+							"name": "ProductStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "ProductModel_table",
+								"type": "DatasetReference"
+							},
+							"name": "ProductModelStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "ProductCategory_Table",
+								"type": "DatasetReference"
+							},
+							"name": "ProductCategoryStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "DimCustomer_table",
+								"type": "DatasetReference"
+							},
+							"name": "GetMaaxCustomerSkStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "DimProduct_Table",
+								"type": "DatasetReference"
+							},
+							"name": "DimProductsLatestStream"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalyticsTable2",
+								"type": "DatasetReference"
+							},
+							"name": "DimCustomerStream"
+						},
+						{
+							"dataset": {
+								"referenceName": "DimProduct_Table",
+								"type": "DatasetReference"
+							},
+							"name": "DimProduct"
+						},
+						{
+							"name": "CustomerSKSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ProductJoinProductModel"
+						},
+						{
+							"name": "joinProductCategory"
+						},
+						{
+							"name": "RequiredColumnsStrem"
+						},
+						{
+							"name": "ProductSKStream"
+						},
+						{
+							"name": "NeededColumndsOnly"
+						},
+						{
+							"name": "CustomerSK"
+						},
+						{
+							"name": "CustomerSKUpdated"
+						},
+						{
+							"name": "DoesProductsExistStream"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerID as string,",
+						"          NameStyle as string,",
+						"          Title as string,",
+						"          FirstName as string,",
+						"          MiddleName as string,",
+						"          LastName as string,",
+						"          Suffix as string,",
+						"          CompanyName as string,",
+						"          SalesPerson as string,",
+						"          EmailAddress as string,",
+						"          Phone as string,",
+						"          PasswordHash as string,",
+						"          PasswordSalt as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> CustomerStream",
+						"source(output(",
+						"          ProductID as integer,",
+						"          Name as string,",
+						"          ProductNumber as string,",
+						"          Color as string,",
+						"          StandardCost as decimal(19,4),",
+						"          ListPrice as decimal(19,4),",
+						"          Size as string,",
+						"          Weight as decimal(8,2),",
+						"          ProductCategoryID as integer,",
+						"          ProductModelID as integer,",
+						"          SellStartDate as timestamp,",
+						"          SellEndDate as timestamp,",
+						"          DiscontinuedDate as timestamp,",
+						"          ThumbNailPhoto as binary,",
+						"          ThumbnailPhotoFileName as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> ProductStream",
+						"source(output(",
+						"          ProductModelID as integer,",
+						"          Name as string,",
+						"          CatalogDescription as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> ProductModelStream",
+						"source(output(",
+						"          ProductCategoryID as integer,",
+						"          ParentProductCategoryID as integer,",
+						"          Name as string,",
+						"          rowguid as string,",
+						"          ModifiedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> ProductCategoryStream",
+						"source(output(",
+						"          CustomerSK as integer,",
+						"          CustomerID as integer,",
+						"          CompanyName as string,",
+						"          SalesPerson as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT MAX([CustomerSK]) as CustomerSK FROM [dbo].[DimCustomer]',",
+						"     format: 'query',",
+						"     staged: true) ~> GetMaaxCustomerSkStream",
+						"source(output(",
+						"          ProductSK as integer,",
+						"          ProductID as integer,",
+						"          ProductModelID as integer,",
+						"          ProductcategoryID as integer,",
+						"          ProductName as string,",
+						"          ProductModelName as string,",
+						"          ProductCategoryName as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table',",
+						"     staged: true) ~> DimProductsLatestStream",
+						"DoesProductsExistStream, ProductModelStream join(ProductStream@ProductModelID == ProductModelStream@ProductModelID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> ProductJoinProductModel",
+						"ProductJoinProductModel, ProductCategoryStream join(ProductStream@ProductCategoryID == ProductCategoryStream@ProductCategoryID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinProductCategory",
+						"joinProductCategory select(mapColumn(",
+						"          ProductID,",
+						"          ProductModelID = ProductModelStream@ProductModelID,",
+						"          ProductCategoryID = ProductCategoryStream@ProductCategoryID,",
+						"          ProductName = ProductStream@Name,",
+						"          ProductModelName = ProductModelStream@Name,",
+						"          ProductCategoryName = ProductCategoryStream@Name",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RequiredColumnsStrem",
+						"RequiredColumnsStrem keyGenerate(output(ProductSK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> ProductSKStream",
+						"CustomerStream select(mapColumn(",
+						"          CustomerID,",
+						"          CompanyName,",
+						"          SalesPerson",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> NeededColumndsOnly",
+						"NeededColumndsOnly keyGenerate(output(CustomerSK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> CustomerSK",
+						"CustomerSK derive(CustomerSK = CustomerSK + CustomerSKSink#outputs()[1].CustomerSK) ~> CustomerSKUpdated",
+						"ProductStream, DimProductsLatestStream exists(ProductStream@ProductID == DimProductsLatestStream@ProductID,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> DoesProductsExistStream",
+						"CustomerSKUpdated sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CustomerSK as integer,",
+						"          CustomerID as integer,",
+						"          CompanyName as string,",
+						"          SalesPerson as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          CustomerSK,",
+						"          CustomerID,",
+						"          CompanyName,",
+						"          SalesPerson",
+						"     )) ~> DimCustomerStream",
+						"ProductSKStream sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ProductSK as integer,",
+						"          ProductID as integer,",
+						"          ProductModelID as integer,",
+						"          ProductcategoryID as integer,",
+						"          ProductName as string,",
+						"          ProductModelName as string,",
+						"          ProductCategoryName as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ProductSK,",
+						"          ProductID,",
+						"          ProductModelID,",
+						"          ProductcategoryID = ProductCategoryID,",
+						"          ProductName,",
+						"          ProductModelName,",
+						"          ProductCategoryName",
+						"     )) ~> DimProduct",
+						"GetMaaxCustomerSkStream sink(validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     store: 'cache',",
+						"     format: 'inline',",
+						"     output: false,",
+						"     saveOrder: 1,",
+						"     mapColumn(",
+						"          CustomerSK",
+						"     )) ~> CustomerSKSink"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/03_dataflow_logdata')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "logdata_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "logdataParquetStream"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "log_parquet_pooldb_service",
+								"type": "DatasetReference"
+							},
+							"name": "PoodbLogDataParquetStream"
+						}
+					],
+					"transformations": [
+						{
+							"name": "RemoveNullValues"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Correlationid as string,",
+						"          Operationname as string,",
+						"          Status as string,",
+						"          Eventcategory as string,",
+						"          Level as string,",
+						"          Time as timestamp,",
+						"          Subscription as string,",
+						"          Eventinitiatedby as string,",
+						"          Resourcetype as string,",
+						"          Resourcegroup as string,",
+						"          Resource as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> logdataParquetStream",
+						"logdataParquetStream filter(!(isNull(Resourcegroup))) ~> RemoveNullValues",
+						"RemoveNullValues sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Correlationid as string,",
+						"          Operationname as string,",
+						"          Status as string,",
+						"          Eventcategory as string,",
+						"          Level as string,",
+						"          Time as timestamp,",
+						"          Subscription as string,",
+						"          Eventinitiatedby as string,",
+						"          Resourcetype as string,",
+						"          Resourcegroup as string,",
+						"          Resource as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Correlationid,",
+						"          Operationname,",
+						"          Status,",
+						"          Eventcategory,",
+						"          Level,",
+						"          Time,",
+						"          Subscription,",
+						"          Eventinitiatedby,",
+						"          Resourcetype,",
+						"          Resourcegroup,",
+						"          Resource",
+						"     )) ~> PoodbLogDataParquetStream"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/04_dataflow_json')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "logdata_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "logparquetstream"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "logdatajson",
+								"type": "DatasetReference"
+							},
+							"name": "jsonstream"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          Correlationid as string,",
+						"          Operationname as string,",
+						"          Status as string,",
+						"          Eventcategory as string,",
+						"          Level as string,",
+						"          Time as timestamp,",
+						"          Subscription as string,",
+						"          Eventinitiatedby as string,",
+						"          Resourcetype as string,",
+						"          Resourcegroup as string,",
+						"          Resource as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> logparquetstream",
+						"logparquetstream sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['log.json'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> jsonstream"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/05_JSON_Arrays')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -99,6 +684,71 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/08_dataflow_metrics')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "staginmetricsdataset",
+								"type": "DatasetReference"
+							},
+							"name": "stagingmetriccontainer"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference"
+							},
+							"name": "stagingoutputstream"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectcolumnsneeded"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          count as integer,",
+						"          total as double,",
+						"          minimum as double,",
+						"          maximum as double,",
+						"          average as double,",
+						"          resourceId as string,",
+						"          time as string,",
+						"          metricName as string,",
+						"          timeGrain as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> stagingmetriccontainer",
+						"stagingmetriccontainer select(mapColumn(",
+						"          average,",
+						"          time,",
+						"          metricName",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectcolumnsneeded",
+						"selectcolumnsneeded sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> stagingoutputstream"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/04_Mappingdataflow_FactSales')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -149,7 +799,9 @@
 				"annotations": [],
 				"lastPublishTime": "2023-08-07T20:08:06Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/01_dataflow_FactSales')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/05_Mappingdataflow_DimTables')]",
@@ -209,7 +861,9 @@
 				"annotations": [],
 				"lastPublishTime": "2023-08-07T20:38:12Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/02_dataflow_Dim')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/06_Copy_logdata_filter')]",
@@ -261,7 +915,9 @@
 				"annotations": [],
 				"lastPublishTime": "2023-08-08T03:24:44Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/03_dataflow_logdata')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/07_Copy_JSON')]",
@@ -465,7 +1121,9 @@
 				"annotations": [],
 				"lastPublishTime": "2023-08-09T00:41:34Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/04_dataflow_json')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/08_JSON_Array')]",

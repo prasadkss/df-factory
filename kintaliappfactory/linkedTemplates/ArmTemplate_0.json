@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "kintaliappfactory"
 		},
+		"AzureDataLakeStoragebkup_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStoragebkup'"
+		},
 		"kintali_appdb_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'kintali_appdb'"
@@ -18,6 +22,10 @@
 		"kintalisynapseworkspace_pooldc_service_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'kintalisynapseworkspace_pooldc_service'"
+		},
+		"AzureDataLakeStoragebkup_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://kintalistoragebkup.dfs.core.windows.net/"
 		},
 		"kintali_service1_properties_typeProperties_url": {
 			"type": "string",
@@ -62,6 +70,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoragebkup')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStoragebkup_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStoragebkup_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/kintali_appdb')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -101,6 +126,19 @@
 				"typeProperties": {
 					"connectionString": "[parameters('kintalisynapseworkspace_pooldc_service_connectionString')]"
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -890,106 +928,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/kintalisynapseworkspace_pooldc_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DimProduct_Table')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "kintalisynapseworkspace_pooldc_service",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlDWTable",
-				"schema": [
-					{
-						"name": "ProductSK",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ProductID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ProductModelID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ProductcategoryID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ProductName",
-						"type": "varchar"
-					},
-					{
-						"name": "ProductModelName",
-						"type": "varchar"
-					},
-					{
-						"name": "ProductCategoryName",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "DimProduct"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/kintalisynapseworkspace_pooldc_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ProductCategory_Table')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "kintali_appdb",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "ProductCategoryID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "ParentProductCategoryID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "rowguid",
-						"type": "uniqueidentifier"
-					},
-					{
-						"name": "ModifiedDate",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "SalesLT",
-					"table": "ProductCategory"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/kintali_appdb')]"
 			]
 		}
 	]
