@@ -30,6 +30,10 @@
 		"kintali_service1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://kintalidatalakestorageg2.dfs.core.windows.net/"
+		},
+		"trigger2_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
 		}
 	},
 	"variables": {
@@ -125,6 +129,26 @@
 				"type": "AzureSqlDW",
 				"typeProperties": {
 					"connectionString": "[parameters('kintalisynapseworkspace_pooldc_service_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger2')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/stagingmetrics/blobs/",
+					"ignoreEmptyBlobs": false,
+					"scope": "[parameters('trigger2_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
 				}
 			},
 			"dependsOn": []
@@ -897,41 +921,6 @@
 						"type": "int",
 						"precision": 10
 					},
-					{
-						"name": "CustomerID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CompanyName",
-						"type": "varchar"
-					},
-					{
-						"name": "SalesPerson",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "DimCustomer"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/kintalisynapseworkspace_pooldc_service')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DimCustomerpooldv')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "kintalisynapseworkspace_pooldc_service",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlDWTable",
-				"schema": [
 					{
 						"name": "CustomerID",
 						"type": "int",

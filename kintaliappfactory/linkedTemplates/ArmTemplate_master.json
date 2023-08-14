@@ -33,7 +33,7 @@
 		},
 		"trigger1_properties_typeProperties_scope": {
 			"type": "string",
-			"defaultValue": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
+			"defaultValue": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalidatalakestorageg2"
 		},
 		"trigger2_properties_typeProperties_scope": {
 			"type": "string",
@@ -83,6 +83,9 @@
 					},
 					"kintali_service1_properties_typeProperties_url": {
 						"value": "[parameters('kintali_service1_properties_typeProperties_url')]"
+					},
+					"trigger2_properties_typeProperties_scope": {
+						"value": "[parameters('trigger2_properties_typeProperties_scope')]"
 					}
 				}
 			},
@@ -124,9 +127,6 @@
 					},
 					"trigger1_properties_typeProperties_scope": {
 						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
-					},
-					"trigger2_properties_typeProperties_scope": {
-						"value": "[parameters('trigger2_properties_typeProperties_scope')]"
 					}
 				}
 			},
