@@ -1551,6 +1551,40 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "deletesourcefiles",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "CopyStagedatatoSink",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "staginoutputdataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"wildcardFileName": "*.*",
+								"enablePartitionDiscovery": false
+							}
+						}
 					}
 				],
 				"policy": {
@@ -4150,6 +4184,7 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
+						"     purgeFiles: true,",
 						"     documentForm: 'documentPerLine') ~> stagingmetriccontainer",
 						"stagingmetriccontainer select(mapColumn(",
 						"          average,",
