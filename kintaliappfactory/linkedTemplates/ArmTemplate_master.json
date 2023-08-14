@@ -84,6 +84,9 @@
 					"kintali_service1_properties_typeProperties_url": {
 						"value": "[parameters('kintali_service1_properties_typeProperties_url')]"
 					},
+					"trigger1_properties_typeProperties_scope": {
+						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
+					},
 					"trigger2_properties_typeProperties_scope": {
 						"value": "[parameters('trigger2_properties_typeProperties_scope')]"
 					}
@@ -124,9 +127,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"trigger1_properties_typeProperties_scope": {
-						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
 					}
 				}
 			},
