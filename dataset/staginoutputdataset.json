@@ -1,0 +1,31 @@
+{
+	"name": "staginoutputdataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStoragebkup",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "stagingoutput"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"average": {
+					"type": "number"
+				},
+				"time": {
+					"type": "string"
+				},
+				"metricName": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
