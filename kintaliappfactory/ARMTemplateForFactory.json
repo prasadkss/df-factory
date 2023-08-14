@@ -30,14 +30,6 @@
 		"kintali_service1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://kintalidatalakestorageg2.dfs.core.windows.net/"
-		},
-		"trigger1_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalidatalakestorageg2"
-		},
-		"trigger2_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
 		}
 	},
 	"variables": {
@@ -3451,46 +3443,6 @@
 				"type": "AzureSqlDW",
 				"typeProperties": {
 					"connectionString": "[parameters('kintalisynapseworkspace_pooldc_service_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger1')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/stagingmetrics/blobs/PT1H",
-					"ignoreEmptyBlobs": false,
-					"scope": "[parameters('trigger1_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger2')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/stagingmetrics/blobs/",
-					"ignoreEmptyBlobs": false,
-					"scope": "[parameters('trigger2_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
 				}
 			},
 			"dependsOn": []

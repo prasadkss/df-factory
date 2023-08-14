@@ -23,12 +23,6 @@
 		"kintali_service1_properties_typeProperties_url": {
 			"value": "https://kintalidatalakestorageg2.dfs.core.windows.net/"
 		},
-		"trigger1_properties_typeProperties_scope": {
-			"value": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalidatalakestorageg2"
-		},
-		"trigger2_properties_typeProperties_scope": {
-			"value": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
-		},
 		"containerUri": {
 			"value": ""
 		},
