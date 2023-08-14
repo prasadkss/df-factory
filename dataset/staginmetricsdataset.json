@@ -1,0 +1,49 @@
+{
+	"name": "staginmetricsdataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStoragebkup",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "stagingmetrics"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"count": {
+					"type": "integer"
+				},
+				"total": {
+					"type": "number"
+				},
+				"minimum": {
+					"type": "number"
+				},
+				"maximum": {
+					"type": "number"
+				},
+				"average": {
+					"type": "number"
+				},
+				"resourceId": {
+					"type": "string"
+				},
+				"time": {
+					"type": "string"
+				},
+				"metricName": {
+					"type": "string"
+				},
+				"timeGrain": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
