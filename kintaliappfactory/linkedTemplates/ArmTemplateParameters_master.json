@@ -26,6 +26,9 @@
 		"trigger1_properties_typeProperties_scope": {
 			"value": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
 		},
+		"trigger2_properties_typeProperties_scope": {
+			"value": "/subscriptions/1fb37bcf-2297-4652-955d-63a35e440a78/resourceGroups/Kintali-grp/providers/Microsoft.Storage/storageAccounts/kintalistoragebkup"
+		},
 		"containerUri": {
 			"value": ""
 		},
